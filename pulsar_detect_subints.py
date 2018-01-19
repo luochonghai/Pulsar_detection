@@ -295,7 +295,7 @@ class DataSet(object):
     #                                 source_url + TRAIN_LABELS)
     #with gfile.Open(local_file, 'rb') as f:
     f2 = "test"
-    test_images,test_labels = extract_labels(f2)
+    test_images,test_labels = extract_images(f2)
 
     #local_file = base.maybe_download(TEST_IMAGES, train_dir,
     #                                 source_url + TEST_IMAGES)
