@@ -20,13 +20,15 @@ def rec_pic(ori_pic):
                 result[j] = ori_trans[i]
     return(result.T)
 
-def numpy_array_stick(path,label):
+def numpy_array_stick(path,label,row_size):
     #thresold == 28;that is,when rol <= 28,
     #we label it directly as RFI(0);when rol > 28,
     #we use poly_2 or poly_3 to fit the prob
     flist_neg = getFileName(path) 
-    file_num_neg = len(flist_neg) 
-    dataset_size = file_num_neg
+    file_num_neg = len(flist_neg)
+    if row_size == 256:
+        file_num_neg = min(file_num_neg,1000)
+        print("file_num_neg for label(%d with 256) is: %d"%(label,file_num_neg))
     train_size = 0
     init_array = zeros((1,4096))
     # 模拟输入是一个二维数组 
@@ -36,24 +38,43 @@ def numpy_array_stick(path,label):
         subints = (cand.get_subints())
         col = shape(subints)[0]
         rol = shape(subints)[1]
+        pic_sub = np.zeros((64,64))
+        sub_temp = np.zeros((64,rol))
+        if rol >= 28:
+            if row_size == 256:#from(256,x)->(64,x)
+                for i_4 in range(64):
+                    temp_sum = 0
+                    for j_1 in range(rol):
+                        for k_1 in range(i_4*4,(i_4+1)*4):
+                            temp_sum = temp_sum+subints[k_1][j_1]
+                        sub_temp[i_4][j_1] = temp_sum/4  
+
         if rol < 28:
             continue;
         elif rol >= 28 and rol < 64:
+            if row_size == 256:
+                pic_sub = rec_pic(sub_temp)
             #use recover_picture() to recover the picture whose rol is less than 64
-            pic_sub = rec_pic(subints)
-        elif rol == 64:
-            if col != 64:
-                continue;
             else:
+                pic_sub = rec_pic(subints)
+        elif rol == 64:
+            if row_size == 32 and col != 64:
+                continue;
+            elif row_size == 256:
+                pic_sub = sub_temp
+            elif row_size == 32 and col == 64:
                 pic_sub = subints
         train_size = train_size+1
+        if row_size == 256:
+            print("j:%d\ntrain_size:%d\n"%(j,train_size))
         temp_X = pic_sub.reshape((1,4096))
         if j == 0:
             init_array = temp_X
         else:
             init_array = numpy.vstack((init_array,temp_X))
+    print(shape(init_array)[0])
     #initialize Y label_dataset
-    init_label = [[label] for p in range(train_size)]   
+    init_label = [[label,1-label] for p in range(shape(init_array)[0])]#here exists a bug:train_size != shape(init_array)[0]   
     return(init_array,init_label)
         
 
