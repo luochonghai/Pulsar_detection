@@ -1,18 +1,3 @@
-# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
 """A deep MNIST classifier using convolutional layers.
 See extensive documentation at
 https://www.tensorflow.org/get_started/mnist/pros
@@ -56,19 +41,6 @@ def extract_images(f):
   Raises:
     ValueError: If the bytestream does not start with 2051.
   """
-  # print('Extracting', f.name)
-  # with gzip.GzipFile(fileobj=f) as bytestream:
-  #   magic = _read32(bytestream)
-  #   if magic != 2051:
-  #     raise ValueError('Invalid magic number %d in MNIST image file: %s' %
-  #                      (magic, f.name))
-  #   num_images = _read32(bytestream)
-  #   rows = _read32(bytestream)
-  #   cols = _read32(bytestream)
-  #   buf = bytestream.read(rows * cols * num_images)
-  #   data = numpy.frombuffer(buf, dtype=numpy.uint8)
-  #   data = data.reshape(num_images, rows, cols, 1)
-  #   print(numpy.shape(data))
   if f == "train":
     D_posi = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309p_pfd",1,64)
     D_nega = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309n_pfd",0,64)#use vstack to reconstruct the multi_array
@@ -81,6 +53,7 @@ def extract_images(f):
     data_size = (np.shape(temp_X))[0]
     X = temp_X.reshape(data_size,64,64,1)
     Y = np.vstack((Y_nega,Y_posi))
+    print("Train:")
     print(np.shape(X))
     print(np.shape(Y))
     return X,Y
@@ -96,6 +69,7 @@ def extract_images(f):
     data_size = (np.shape(temp_X))[0]
     X = temp_X.reshape(data_size,64,64,1)
     Y = np.vstack((Y_nega,Y_posi))
+    print("Test:")
     print(np.shape(X))
     print(np.shape(Y))
     return X,Y
@@ -110,47 +84,33 @@ def dense_to_one_hot(labels_dense, num_classes):
   print(numpy.shape(labels_one_hot))
   return labels_one_hot
 
-def extract_labels(f):
-  """Extract the labels into a 1D uint8 numpy array [index].
-  Args:
-    f: A file object that can be passed into a gzip reader.
-    one_hot: Does one hot encoding for the result.
-    num_classes: Number of classes for the one hot encoding.
-  Returns:
-    labels: a 1D uint8 numpy array.
-  Raises:
-    ValueError: If the bystream doesn't start with 2049.
-  """
-  # print('Extracting', f.name)
-  # with gzip.GzipFile(fileobj=f) as bytestream:
-  #   magic = _read32(bytestream)
-  #   if magic != 2049:
-  #     raise ValueError('Invalid magic number %d in MNIST label file: %s' %
-  #                      (magic, f.name))
-  #   num_items = _read32(bytestream)
-  #   buf = bytestream.read(num_items)
-  #   labels = numpy.frombuffer(buf, dtype=numpy.uint8)
-  #if one_hot:
-  #  return dense_to_one_hot(labels, num_classes)
-  #return this,not the following one
-  if f == "train":
-    D_posi = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309p_pfd",1,64)
-    D_nega = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309n_pfd",0,64)#use vstack to reconstruct the multi_array
-    Y_nega = D_nega[1]#"X" means data,"Y" means label
-    #X_nega = D_nega[0]
-    Y_posi = D_posi[1]
-    #X_posi = D_posi[0]
-    Y = np.vstack((Y_nega,Y_posi))
-    print(np.shape(Y))
-    return Y
-  else:
-    D_posi = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/Good_check_True",1,256)
-    D_nega = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/RFI_all_info",0,256)
-    Y_nega = D_nega[1]
-    Y_posi = D_posi[1]
-    print(np.shape(Y))
-    return Y
-  #return labels
+# def extract_labels(f):
+#   """Extract the labels into a 1D uint8 numpy array [index].
+#   Args:
+#     f: A file object that can be passed into a gzip reader.
+#     one_hot: Does one hot encoding for the result.
+#     num_classes: Number of classes for the one hot encoding.
+#   Returns:
+#     labels: a 1D uint8 numpy array.
+#   Raises:
+#     ValueError: If the bystream doesn't start with 2049.
+#   """
+#   if f == "train":
+#     D_posi = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309p_pfd",1,64)
+#     D_nega = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/p309n_pfd",0,64)#use vstack to reconstruct the multi_array
+#     Y_nega = D_nega[1]#"X" means data,"Y" means label
+#     Y_posi = D_posi[1]
+#     Y = np.vstack((Y_nega,Y_posi))
+#     print(np.shape(Y))
+#     return Y
+#   else:
+#     D_posi = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/Good_check_True",1,256)
+#     D_nega = numpy_array_stick("/home/luzihao/xiaoluo/dataset/bin/RFI_all_info",0,256)
+#     Y_nega = D_nega[1]
+#     Y_posi = D_posi[1]
+#     print(np.shape(Y))
+#     return Y
+#   #return labels
 
 class DataSet(object):
 
@@ -175,8 +135,7 @@ class DataSet(object):
       raise TypeError('Invalid image dtype %r, expected uint8 or float32' %
                       dtype)
     if fake_data:
-      #self._num_examples = 10000
-      self._num_examples = 100
+      self._num_examples = 1000
       self.one_hot = one_hot
     else:
       assert images.shape[0] == labels.shape[0], (
@@ -265,7 +224,7 @@ class DataSet(object):
                      one_hot=False,
                      dtype=dtypes.float32,
                      reshape=True,
-                     validation_size=50,
+                     validation_size=200,
                      seed=None):
     if fake_data:
 
@@ -277,37 +236,10 @@ class DataSet(object):
       validation = fake()
       test = fake()
       return base.Datasets(train=train, validation=validation, test=test)
-
-    #source_url = "D:\\FDU\\Template\FDUROP\\face_detection_and_recognition\\MNIST_data\\"
-
-    #TRAIN_IMAGES = 'train-images-idx3-ubyte.gz'
-    #TRAIN_LABELS = 'train-labels-idx1-ubyte.gz'
-    #TEST_IMAGES = 't10k-images-idx3-ubyte.gz'
-    #TEST_LABELS = 't10k-labels-idx1-ubyte.gz'
-
-    #local_file = base.maybe_download(TRAIN_IMAGES, train_dir,
-    #                                source_url + TRAIN_IMAGES)
-    #with gfile.Open(local_file, 'rb') as f:
     f1 = "train"
     train_images,train_labels = extract_images(f1)
-
-    #local_file = base.maybe_download(TRAIN_LABELS, train_dir,
-    #                                 source_url + TRAIN_LABELS)
-    #with gfile.Open(local_file, 'rb') as f:
     f2 = "test"
     test_images,test_labels = extract_images(f2)
-
-    #local_file = base.maybe_download(TEST_IMAGES, train_dir,
-    #                                 source_url + TEST_IMAGES)
-    #with gfile.Open(local_file, 'rb') as f:
-    #f3 = "test"
-    #test_images = extract_images(f3)
-
-    #local_file = base.maybe_download(TEST_LABELS, train_dir,
-    #                                 source_url + TEST_LABELS)
-    #with gfile.Open(local_file, 'rb') as f:
-    #f4 = "test"
-    #test_labels = extract_labels(f4)
 
     if not 0 <= validation_size <= len(train_images):
       raise ValueError(
@@ -344,12 +276,10 @@ def deepnn(x):
   # grayscale -- it would be 3 for an RGB image, 4 for RGBA, etc.
   with tf.name_scope('reshape'):
     x_image = tf.reshape(x, [-1, 64, 64, 1])
-  #  x_image = tf.reshape(x, [-1, 28, 28, 1])
 
   # First convolutional layer - maps one grayscale image to 32 feature maps.
   with tf.name_scope('conv1'):
     W_conv1 = weight_variable([5,5,1,32])
-    #W_conv1 = weight_variable([5, 5, 1, 32])
     b_conv1 = bias_variable([32])
     h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 
@@ -360,7 +290,6 @@ def deepnn(x):
   # Second convolutional layer -- maps 32 feature maps to 64.
   with tf.name_scope('conv2'):
     W_conv2 = weight_variable([5, 5, 32, 64])
-    #W_conv2 = weight_variable([5, 5, 32, 64])
     b_conv2 = bias_variable([64])
     h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 
@@ -371,12 +300,9 @@ def deepnn(x):
   # Fully connected layer 1 -- after 2 round of downsampling, our 64x64 image
   # is down to 4x4x64 feature maps -- maps this to 512 features.
   with tf.name_scope('fc1'):
-    #W_fc1 = weight_variable([7 * 7 * 64, 1024])
     W_fc1 = weight_variable([4 * 4 * 64, 512])
     b_fc1 = bias_variable([512])
-    #b_fc1 = bias_variable([1024])
 
-    #h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
     h_pool2_flat = tf.reshape(h_pool2, [-1, 4*4*64])
     h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
@@ -390,8 +316,6 @@ def deepnn(x):
   with tf.name_scope('fc2'):
     W_fc2 = weight_variable([512, 2])
     b_fc2 = bias_variable([2])
-    #W_fc2 = weight_variable([1024, 10])
-    #b_fc2 = bias_variable([10])
 
     y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
   return y_conv, keep_prob
@@ -430,11 +354,9 @@ def main(_):
 
   # Create the model
   x = tf.placeholder(tf.float32, [None, 4096])
-  #x = tf.placeholder(tf.float32, [None, 784])
 
   # Define loss and optimizer
   y_ = tf.placeholder(tf.float32, [None, 2])
-  #y_ = tf.placeholder(tf.float32, [None, 10])
 
   # Build the graph for the deep net
   y_conv, keep_prob = deepnn(x)
@@ -459,9 +381,9 @@ def main(_):
 
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for i in range(20):
+    for i in range(2000):
       batch = mnist.train.next_batch(5)
-      if i % 10 == 0:
+      if i % 200 == 0:
         train_accuracy = accuracy.eval(feed_dict={
             x: batch[0], y_: batch[1], keep_prob: 1.0})
         print('step %d, training accuracy %g' % (i, train_accuracy))
