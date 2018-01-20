@@ -82,6 +82,6 @@ def numpy_array_stick(path,label,row_size):
         else:
             init_array = numpy.vstack((init_array,temp_X))
     #initialize Y label_dataset
-    init_label = [[label,1-label] for p in range(train_size)]   
+    init_label = [[label,1-label] for p in range(shape(init_array)[0])]   
     return(init_array,init_label)
         
